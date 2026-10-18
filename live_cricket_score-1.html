@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087d2b">
+<title>Live Cricket Score</title>
+<style>
+:root{--green:#087d2b;--dark:#05651f;--light:#c5dec9;--bg:#f1f3f1;--line:#d7ddd8;--text:#202820}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+header{background:var(--green);color:white;padding:18px 16px 0;box-shadow:0 2px 5px #0002}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px;margin:auto;padding-bottom:15px}
+.brand{font-size:22px;font-weight:700}.tag{font-size:12px;opacity:.85;margin-top:4px}
+.status{font-size:12px;border:1px solid #ffffff77;border-radius:20px;padding:6px 9px;white-space:nowrap}
+nav{display:flex;gap:22px;max-width:900px;margin:auto}
+nav span{padding:12px 2px;border-bottom:3px solid white;font-weight:700;font-size:14px}
+main{max-width:900px;margin:16px auto;padding:0 12px}
+.notice{background:#fff;padding:14px;border-radius:8px;margin-bottom:12px;font-size:14px}
+.scorehead{background:var(--green);color:white;padding:14px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.scorehead strong{font-size:18px}.score{font-size:22px;font-weight:700;white-space:nowrap}.overs{font-size:13px;opacity:.9;text-align:right;margin-top:4px}
+.subhead{background:var(--light);padding:12px;font-weight:700;font-size:13px;display:grid;grid-template-columns:minmax(120px,1fr) repeat(4,48px);gap:4px}
+.player{display:grid;grid-template-columns:minmax(120px,1fr) repeat(4,48px);gap:4px;padding:12px;background:#fff;border-bottom:1px solid var(--line);align-items:center;font-size:14px}
+.player .name{font-weight:600}.muted{font-size:12px;color:#687168;margin-top:4px}.num{text-align:center;font-variant-numeric:tabular-nums}
+.total{display:flex;justify-content:space-between;padding:13px;background:#fff;border-bottom:1px solid var(--line);font-weight:700}
+.bowlhead,.bowlrow{display:grid;grid-template-columns:minmax(120px,1fr) repeat(4,48px);gap:4px;padding:12px;align-items:center}
+.bowlhead{background:var(--light);font-size:13px;font-weight:700}.bowlrow{background:#fff;border-bottom:1px solid var(--line);font-size:14px}
+.section{background:#fff;margin-top:14px;border-radius:8px;overflow:hidden}.section h2{font-size:16px;background:#e3eee5;margin:0;padding:13px}
+.controls{padding:14px;background:#fff;display:grid;gap:12px}
+label{font-size:13px;font-weight:700;display:block;margin-bottom:5px}
+input,select{width:100%;padding:11px;border:1px solid #cbd3cc;border-radius:7px;font-size:15px;background:white;color:#202820}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:8px;padding:12px 14px;font-size:15px;font-weight:700;cursor:pointer}
+.primary{background:var(--green);color:#fff}.lightbtn{background:#e6eee7;color:#145a27}.danger{background:#fff0ee;color:#a32c20}
+.buttonrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.buttonrow button{min-height:48px}
+.runbtn{background:#e8f2e9;color:#075d20}.runbtn.extra{background:#f1f2f1;color:#222}
+.outcome{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.help{font-size:12px;color:#657065;line-height:1.5}.foot{text-align:center;padding:24px 12px;color:#687168;font-size:12px}
+@media(max-width:430px){.brand{font-size:20px}.score{font-size:20px}.subhead,.player,.bowlhead,.bowlrow{grid-template-columns:minmax(100px,1fr) repeat(4,38px);font-size:12px;padding-left:9px;padding-right:9px}.player{font-size:13px}.buttonrow{grid-template-columns:repeat(3,1fr)}.fields{grid-template-columns:1fr}.scorehead{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><div class="brand">🏏 Live Cricket Score</div><div class="tag">Local Tournament • Live Scorecard</div></div><div class="status" id="liveBadge">● LIVE SCORE</div></div><nav><span>Scoreboard</span><span id="navMatch">Local Match</span></nav></header>
+<main>
+<div class="notice" id="tossText">Welcome! Match details set karne ke liye neeche Admin Controls use karein.</div>
+<div class="scorehead"><div><strong id="batTeam">Bijadk</strong><div class="overs" id="inningsLabel">1st Innings</div></div><div><div class="score" id="scoreText">0/0</div><div class="overs" id="oversText">0.0 Overs • CRR 0.00</div></div></div>
+<div class="subhead"><div>Batsman</div><div class="num">R</div><div class="num">B</div><div class="num">4s</div><div class="num">6s</div></div>
+<div id="battingRows"></div>
+<div class="total"><span>Extras</span><span id="extrasText">0</span></div><div class="total"><span>Total</span><span id="totalText">0/0 (0.0)</span></div>
+<div class="bowlhead"><div>Bowler</div><div class="num">O</div><div class="num">R</div><div class="num">W</div><div class="num">ER</div></div><div id="bowlingRows"></div>
+<div class="section"><h2>Fall of Wickets</h2><div id="fow" style="padding:13px;background:#fff;font-size:13px">Abhi koi wicket nahi gira.</div></div>
+<div class="section"><h2>Admin Controls — Score Update</h2><div class="controls">
+<div class="fields"><div><label for="matchName">Match name</label><input id="matchName" value="Bijadk v/s Nangla"></div><div><label for="oversLimit">Overs per innings</label><select id="oversLimit"><option>5</option><option selected>8</option><option>10</option><option>12</option><option>15</option><option>20</option><option>25</option><option>50</option></select></div>
+<div><label for="teamA">Batting team</label><input id="teamA" value="Bijadk"></div><div><label for="teamB">Bowling team</label><input id="teamB" value="Nangla"></div>
+<div><label for="striker">Striker</label><input id="striker" value="Batsman 1"></div><div><label for="nonStriker">Non-striker</label><input id="nonStriker" value="Batsman 2"></div>
+<div><label for="bowler">Current bowler</label><input id="bowler" value="Bowler 1"></div><div><label for="toss">Toss / match note</label><input id="toss" value="Local tournament match"></div></div>
+<button class="primary" id="applyBtn">Match details apply karein</button>
+<div><label>Runs (legal ball)</label><div class="buttonrow"><button class="runbtn" data-run="0">0</button><button class="runbtn" data-run="1">1</button><button class="runbtn" data-run="2">2</button><button class="runbtn" data-run="3">3</button><button class="runbtn" data-run="4">4</button><button class="runbtn" data-run="6">6</button></div></div>
+<div><label>Extra / wicket</label><div class="outcome"><button class="lightbtn" id="wideBtn">Wide +1</button><button class="lightbtn" id="noBallBtn">No-ball +1</button><button class="danger" id="wicketBtn">Wicket</button></div></div>
+<div class="fields"><div><label for="extraRuns">Extra runs (optional)</label><input type="number" id="extraRuns" min="0" max="20" value="0"></div><div><label for="extraType">Extra type</label><select id="extraType"><option value="bye">Bye</option><option value="legbye">Leg bye</option></select></div></div>
+<div class="buttonrow"><button class="lightbtn" id="undoBtn">↶ Undo</button><button class="lightbtn" id="swapBtn">⇄ Swap batsmen</button><button class="lightbtn" id="newInningsBtn">Next innings</button><button class="lightbtn" id="shareBtn">Share score</button></div>
+<button class="danger" id="resetBtn">Reset match</button>
+<div class="help">Tip: Runs buttons legal delivery add karte hain. Wide aur No-ball legal ball count nahi karte. Score isi browser/device mein save hota hai; online sabko dikhane ke liye ise hosting aur shared database se connect karna hoga.</div>
+</div></div>
+</main><div class="foot">Live Cricket Score • Local Tournament Scorecard</div>
+<script>
+const $=id=>document.getElementById(id);
+let state, history=[];
+function fresh(){return {match:"Bijadk v/s Nangla",teamA:"Bijadk",teamB:"Nangla",batting:"A",limit:8,innings:1,score:0,wickets:0,balls:0,extras:0,batsmen:[{name:"Batsman 1",r:0,b:0,f4:0,s6:0,out:false},{name:"Batsman 2",r:0,b:0,f4:0,s6:0,out:false}],striker:0,bowler:{name:"Bowler 1",oBalls:0,r:0,w:0},fow:[],toss:"Local tournament match",complete:false}}
+function save(){try{localStorage.setItem("lcs-state",JSON.stringify(state))}catch(e){}}
+function load(){try{let s=localStorage.getItem("lcs-state");state=s?JSON.parse(s):fresh()}catch(e){state=fresh()}}
+function overs(b){return Math.floor(b/6)+"."+(b%6)}
+function team(){return state.batting==="A"?state.teamA:state.teamB}
+function snapshot(){history.push(JSON.stringify(state));if(history.length>50)history.shift()}
+function legalBall(){state.balls++;state.batsmen[state.striker].b++;state.bowler.oBalls++;if(state.bowler.oBalls===6){state.bowler.name=$("bowler").value||"Bowler";state.bowler.oBalls=0}}
+function rotate(){if(state.balls%6===0)state.striker=1-state.striker}
+function addRuns(n){if(state.complete)return;snapshot();legalBall();state.score+=n;state.batsmen[state.striker].r+=n;state.bowler.r+=n;if(n===4)state.batsmen[state.striker].f4++;if(n===6)state.batsmen[state.striker].s6++;if(n%2)state.striker=1-state.striker;rotate();checkEnd();render()}
+function addExtra(kind){if(state.complete)return;snapshot();let amount=kind==="wide"||kind==="noball"?1:Math.max(0,Number($("extraRuns").value)||0);state.score+=amount;state.extras+=amount;if(kind==="wide"){state.extras+=0;state.bowler.r+=amount}else if(kind==="noball"){state.bowler.r+=amount;state.batsmen[state.striker].r+=0}else{legalBall();state.bowler.r+=amount;state.extras+=amount;state.bowler.r+=0}if(kind==="bye"||kind==="legbye")state.extras-=amount;render()}
+function wicket(){if(state.complete)return;snapshot();legalBall();state.wickets++;state.bowler.w++;state.batsmen[state.striker].out=true;state.fow.push({w:state.wickets,score:state.score,over:overs(state.balls)});if(state.wickets<10){let next={name:"Batsman "+(state.wickets+2),r:0,b:0,f4:0,s6:0,out:false};state.batsmen[state.striker]=next}checkEnd();render()}
+function checkEnd(){if(state.wickets>=10||state.balls>=state.limit*6){state.complete=true}}
+function render(){
+$("navMatch").textContent=state.match;$("matchName").value=state.match;$("teamA").value=state.teamA;$("teamB").value=state.teamB;$("oversLimit").value=String(state.limit);$("batTeam").textContent=team();$("inningsLabel").textContent=(state.innings===1?"1st":state.innings===2?"2nd":state.innings+"th")+" Innings"+(state.complete?" • Innings complete":"");$("scoreText").textContent=state.score+"/"+state.wickets;$("oversText").textContent=overs(state.balls)+" Overs • CRR "+(state.balls?(state.score/(state.balls/6)).toFixed(2):"0.00");$("totalText").textContent=state.score+"/"+state.wickets+" ("+overs(state.balls)+")";$("extrasText").textContent=state.extras;$("tossText").textContent=state.toss||"Match in progress";
+$("battingRows").innerHTML=state.batsmen.map((p,i)=>`<div class="player"><div><div class="name">${esc(p.name)}${i===state.striker&&!p.out?' *':''}</div><div class="muted">${p.out?'out':'not out'}</div></div><div class="num">${p.r}</div><div class="num">${p.b}</div><div class="num">${p.f4}</div><div class="num">${p.s6}</div></div>`).join("");
+$("bowlingRows").innerHTML=`<div class="bowlrow"><div>${esc(state.bowler.name)}</div><div class="num">${overs(state.bowler.oBalls)}</div><div class="num">${state.bowler.r}</div><div class="num">${state.bowler.w}</div><div class="num">${state.bowler.oBalls?(state.bowler.r/(state.bowler.oBalls/6)).toFixed(1):"0.0"}</div></div>`;
+$("fow").textContent=state.fow.length?state.fow.map(x=>x.w+"-"+x.score+" ("+x.over+" ov)").join(" • "):"Abhi koi wicket nahi gira.";$("liveBadge").textContent=state.complete?"● INNINGS END":"● LIVE SCORE";save()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>addRuns(Number(b.dataset.run)));
+$("wideBtn").onclick=()=>addExtra("wide");$("noBallBtn").onclick=()=>addExtra("noball");$("wicketBtn").onclick=wicket;
+$("applyBtn").onclick=()=>{snapshot();state.match=$("matchName").value||"Local Match";state.teamA=$("teamA").value||"Team A";state.teamB=$("teamB").value||"Team B";state.limit=Number($("oversLimit").value)||8;state.batsmen[0].name=$("striker").value||"Batsman 1";state.batsmen[1].name=$("nonStriker").value||"Batsman 2";state.bowler.name=$("bowler").value||"Bowler";state.toss=$("toss").value||"";render()};
+$("undoBtn").onclick=()=>{if(history.length){state=JSON.parse(history.pop());render()}};
+$("swapBtn").onclick=()=>{snapshot();state.striker=1-state.striker;render()};
+$("newInningsBtn").onclick=()=>{snapshot();if(state.innings===1){let first=state.score;state= fresh();state.teamA=$("teamA").value||"Bijadk";state.teamB=$("teamB").value||"Nangla";state.batting="B";state.innings=2;state.limit=Number($("oversLimit").value)||8;state.match=$("matchName").value||"Local Match";state.toss="2nd innings • First innings score: "+first;state.batsmen[0].name=$("striker").value||"Batsman 1";state.batsmen[1].name=$("nonStriker").value||"Batsman 2";state.bowler.name=$("bowler").value||"Bowler";}else{state.complete=true}render()};
+$("resetBtn").onclick=()=>{if(confirm("Poora match reset karna hai?")){snapshot();state=fresh();history=[];render()}};
+$("shareBtn").onclick=()=>{let text=`${state.match}\n${team()}: ${state.score}/${state.wickets} (${overs(state.balls)} overs)\nExtras: ${state.extras}\nLive Cricket Score`;if(navigator.share)navigator.share({title:"Live Cricket Score",text}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>alert("Score copied! WhatsApp par paste kar dein.")).catch(()=>alert(text));else alert(text)};
+load();render();
+</script>
+</body>
+</html>
